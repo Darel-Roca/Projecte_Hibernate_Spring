@@ -1,22 +1,10 @@
 package catan;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.Objects;
+import java.util.*;
 
 import org.hibernate.annotations.DynamicInsert;
 
@@ -53,6 +41,9 @@ public class Hexagon {
 
 	@OneToOne(mappedBy = "hexagon", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	private Hexagon lladre;
+	
+	@OneToMany(mappedBy = "hexagon", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY) 
+	private List<HexagonVertex> hexagonvertices= new ArrayList();
 	
 	public Integer getQ() {
 		return q;

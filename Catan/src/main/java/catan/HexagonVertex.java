@@ -1,67 +1,84 @@
 package catan;
 
+import jakarta.persistence.*;
 import java.util.Objects;
 
-import org.hibernate.annotations.DynamicInsert;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-
 @Entity
-@Table(name = "hexagon_vertex")
-@DynamicInsert
+@Table(name = "hexagon_vertex", uniqueConstraints = {
+    @UniqueConstraint(columnNames = { "hexagon_id", "vertex_id" })
+})
 public class HexagonVertex {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
-	private Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-	@NotNull(message = "La posició del vèrtex és obligatòria")
-	@Min(value = 0, message = "La posició del vèrtex ha d'estar entre 0 i 5")
-	@Max(value = 5, message = "La posició del vèrtex ha d'estar entre 0 i 5")
-	@Column(name = "posicio", nullable = false)
-	private Integer posicio;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "hexagon_id", nullable = false)
+    private Hexagon hexagon;
 
-	public Integer getPosicio() {
-		return posicio;
-	}
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "vertex_id", nullable = false)
+    private Vertex vertex; 
 
-	public void setPosicio(Integer posicio) {
-		this.posicio = posicio;
-	}
+    @Column(nullable = false)
+    private Integer posicio;
 
-	public Integer getId() {
-		return id;
-	}
+    public HexagonVertex() {}
 
-	@Override
-	public String toString() {
-		return "HexagonVertex [id=" + id + ", posicio=" + posicio + "]";
-	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, posicio);
-	}
+    public HexagonVertex(Hexagon hexagon, Vertex vertex, Integer posicio) {
+        this.hexagon = hexagon;
+        this.vertex = vertex;
+        this.posicio = posicio;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		HexagonVertex other = (HexagonVertex) obj;
-		return Objects.equals(id, other.id) && Objects.equals(posicio, other.posicio);
-	}
+    // Getters i Setters
+    public Integer getId() {
+        return id;
+    }
 
+    public Hexagon getHexagon() {
+        return hexagon;
+    }
+
+    public void setHexagon(Hexagon hexagon) {
+        this.hexagon = hexagon;
+    }
+
+    public Vertex getVertex() {
+        return vertex;
+    }
+
+    public void setVertex(Vertex vertex) {
+        this.vertex = vertex;
+    }
+
+    public Integer getPosicio() {
+        return posicio;
+    }
+
+    public void setPosicio(Integer posicio) {
+        this.posicio = posicio;
+    }
+
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        HexagonVertex that = (HexagonVertex) o;
+        return Objects.equals(hexagon, that.hexagon) && 
+               Objects.equals(vertex, that.vertex);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(hexagon, vertex);
+    }
+
+    @Override
+    public String toString() {
+        return "HexagonVertex [id=" + id + ", posicio=" + posicio + "]";
+    }
 }
