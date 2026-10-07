@@ -81,11 +81,35 @@ public class Hexagon {
 		return id;
 	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, numero, partida, q, r, terreny);
+	public Partida getPartida() {
+		return partida;
 	}
 
+	public void setPartida(Partida partida) {
+		this.partida = partida;
+	}
+
+	public Hexagon getLladre() {
+		return lladre;
+	}
+
+	public void setLladre(Hexagon lladre) {
+		this.lladre = lladre;
+	}
+
+	public List<HexagonVertex> getHexagonvertices() {
+		return hexagonvertices;
+	}
+
+	public void setHexagonvertices(List<HexagonVertex> hexagonvertices) {
+		this.hexagonvertices = hexagonvertices;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(hexagonvertices, id, lladre, numero, partida, q, r, terreny);
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -95,7 +119,8 @@ public class Hexagon {
 		if (getClass() != obj.getClass())
 			return false;
 		Hexagon other = (Hexagon) obj;
-		return Objects.equals(id, other.id) && Objects.equals(numero, other.numero)
+		return Objects.equals(hexagonvertices, other.hexagonvertices) && Objects.equals(id, other.id)
+				&& Objects.equals(lladre, other.lladre) && Objects.equals(numero, other.numero)
 				&& Objects.equals(partida, other.partida) && Objects.equals(q, other.q) && Objects.equals(r, other.r)
 				&& terreny == other.terreny;
 	}

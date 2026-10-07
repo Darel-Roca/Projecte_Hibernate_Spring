@@ -187,11 +187,44 @@ public class Partida {
 	public Integer getId() {
 		return id;
 	}
+	
+	public List<Hexagon> getTauler() {
+		return tauler;
+	}
+
+	public void setTauler(List<Hexagon> tauler) {
+		this.tauler = tauler;
+	}
+
+	public Hexagon getLladre() {
+		return lladre;
+	}
+
+	public void setLladre(Hexagon lladre) {
+		this.lladre = lladre;
+	}
+
+	public List<Aresta> getArestas() {
+		return arestas;
+	}
+
+	public void setArestas(List<Aresta> arestas) {
+		this.arestas = arestas;
+	}
+
+	public List<Vertex> getVertexs() {
+		return vertexs;
+	}
+
+	public void setVertexs(List<Vertex> vertexs) {
+		this.vertexs = vertexs;
+	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(dataInici, Boolean.valueOf(dausTirats), estat, id, Boolean.valueOf(lladrePendent),
-				puntsPerGuanyar, ronda, ultimaTirada);
+		return Objects.hash(Integer.valueOf(actiu), arestas, dataInici, Boolean.valueOf(dausTirats), estat,
+				Integer.valueOf(guanyador), id, jugadors, lladre, Boolean.valueOf(lladrePendent), pila, puntsPerGuanyar,
+				ronda, tauler, ultimaTirada, vertexs);
 	}
 
 	@Override
@@ -203,17 +236,23 @@ public class Partida {
 		if (getClass() != obj.getClass())
 			return false;
 		Partida other = (Partida) obj;
-		return Objects.equals(dataInici, other.dataInici) && dausTirats == other.dausTirats && estat == other.estat
-				&& Objects.equals(id, other.id) && lladrePendent == other.lladrePendent
+		return actiu == other.actiu && Objects.equals(arestas, other.arestas)
+				&& Objects.equals(dataInici, other.dataInici) && dausTirats == other.dausTirats && estat == other.estat
+				&& guanyador == other.guanyador && Objects.equals(id, other.id)
+				&& Objects.equals(jugadors, other.jugadors) && Objects.equals(lladre, other.lladre)
+				&& lladrePendent == other.lladrePendent && Objects.equals(pila, other.pila)
 				&& Objects.equals(puntsPerGuanyar, other.puntsPerGuanyar) && Objects.equals(ronda, other.ronda)
-				&& Objects.equals(ultimaTirada, other.ultimaTirada);
+				&& Objects.equals(tauler, other.tauler) && Objects.equals(ultimaTirada, other.ultimaTirada)
+				&& Objects.equals(vertexs, other.vertexs);
 	}
 
 	@Override
 	public String toString() {
 		return "Partida [id=" + id + ", estat=" + estat + ", dataInici=" + dataInici + ", ronda=" + ronda
 				+ ", ultimaTirada=" + ultimaTirada + ", puntsPerGuanyar=" + puntsPerGuanyar + ", dausTirats="
-				+ dausTirats + ", lladrePendent=" + lladrePendent + "]";
+				+ dausTirats + ", lladrePendent=" + lladrePendent + ", jugadors=" + jugadors + ", actiu=" + actiu
+				+ ", guanyador=" + guanyador + ", pila=" + pila + ", tauler=" + tauler + ", lladre=" + lladre
+				+ ", arestas=" + arestas + ", vertexs=" + vertexs + "]";
 	}
 	
 	

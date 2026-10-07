@@ -107,11 +107,6 @@ public class Jugador {
 	public Integer getId() {
 		return id;
 	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(cavallersJugats, color, id, nom, ordreTorn);
-	}
 	
 	public Partida getPartida() {
 		return partida;
@@ -136,6 +131,12 @@ public class Jugador {
 	public void setPropietari(List<Construccio> propietari) {
 		this.propietari = propietari;
 	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(Integer.valueOf(actiu), cavallersJugats, color, Integer.valueOf(guanyador), id, ma, nom,
+				ordreTorn, partida, propietari);
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -146,15 +147,17 @@ public class Jugador {
 		if (getClass() != obj.getClass())
 			return false;
 		Jugador other = (Jugador) obj;
-		return Objects.equals(cavallersJugats, other.cavallersJugats) && color == other.color
-				&& Objects.equals(id, other.id) && Objects.equals(nom, other.nom)
-				&& Objects.equals(ordreTorn, other.ordreTorn);
+		return actiu == other.actiu && Objects.equals(cavallersJugats, other.cavallersJugats) && color == other.color
+				&& guanyador == other.guanyador && Objects.equals(id, other.id) && Objects.equals(ma, other.ma)
+				&& Objects.equals(nom, other.nom) && Objects.equals(ordreTorn, other.ordreTorn)
+				&& Objects.equals(partida, other.partida) && Objects.equals(propietari, other.propietari);
 	}
 
 	@Override
 	public String toString() {
-		return "Jugador [id=" + id + ", nom=" + nom + ", color=" + color + ", ordreTorn=" + ordreTorn
-				+ ", cavallersJugats=" + cavallersJugats + "]";
+		return "Jugador [id=" + id + ", partida=" + partida + ", nom=" + nom + ", color=" + color + ", ordreTorn="
+				+ ordreTorn + ", cavallersJugats=" + cavallersJugats + ", actiu=" + actiu + ", guanyador=" + guanyador
+				+ ", ma=" + ma + ", propietari=" + propietari + "]";
 	}
 	
 	

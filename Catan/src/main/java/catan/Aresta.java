@@ -46,6 +46,14 @@ public class Aresta {
 		this.codi = codi;
 	}
 
+	public Partida getPartida() {
+		return partida;
+	}
+
+	public void setPartida(Partida partida) {
+		this.partida = partida;
+	}
+	
 	public Integer getVertexA() {
 		return vertexA;
 	}
@@ -76,7 +84,7 @@ public class Aresta {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(codi, id, vertexA, vertexB);
+		return Objects.hash(carretera, codi, id, partida, vertexA, vertexB);
 	}
 
 	@Override
@@ -88,13 +96,17 @@ public class Aresta {
 		if (getClass() != obj.getClass())
 			return false;
 		Aresta other = (Aresta) obj;
-		return Objects.equals(codi, other.codi) && Objects.equals(id, other.id)
+		return Objects.equals(carretera, other.carretera) && Objects.equals(codi, other.codi)
+				&& Objects.equals(id, other.id) && Objects.equals(partida, other.partida)
 				&& Objects.equals(vertexA, other.vertexA) && Objects.equals(vertexB, other.vertexB);
 	}
 
 	@Override
 	public String toString() {
-		return "Aresta [id=" + id + ", codi=" + codi + ", vertexA=" + vertexA + ", vertexB=" + vertexB + "]";
+		return "Aresta [id=" + id + ", partida=" + partida + ", codi=" + codi + ", vertexA=" + vertexA + ", vertexB="
+				+ vertexB + ", carretera=" + carretera + "]";
 	}
+
+	
 
 }

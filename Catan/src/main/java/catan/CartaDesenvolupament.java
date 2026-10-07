@@ -75,7 +75,7 @@ public class CartaDesenvolupament {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(estat, id, rondaCompra, Boolean.valueOf(usada));
+		return Objects.hash(estat, id, partida, rondaCompra, Boolean.valueOf(usada));
 	}
 	
 	public Partida getPartida() {
@@ -85,7 +85,7 @@ public class CartaDesenvolupament {
 	public void setPartida(Partida partida) {
 		this.partida = partida;
 	}
-
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -95,14 +95,14 @@ public class CartaDesenvolupament {
 		if (getClass() != obj.getClass())
 			return false;
 		CartaDesenvolupament other = (CartaDesenvolupament) obj;
-		return estat == other.estat && Objects.equals(id, other.id) && Objects.equals(rondaCompra, other.rondaCompra)
-				&& usada == other.usada;
+		return estat == other.estat && Objects.equals(id, other.id) && Objects.equals(partida, other.partida)
+				&& Objects.equals(rondaCompra, other.rondaCompra) && usada == other.usada;
 	}
 
 	@Override
 	public String toString() {
-		return "CartaDesenvolupament [id=" + id + ", estat=" + estat + ", usada=" + usada + ", rondaCompra="
-				+ rondaCompra + "]";
+		return "CartaDesenvolupament [id=" + id + ", partida=" + partida + ", estat=" + estat + ", usada=" + usada
+				+ ", rondaCompra=" + rondaCompra + "]";
 	}
 	
 	
