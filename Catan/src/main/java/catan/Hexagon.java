@@ -1,12 +1,12 @@
 package catan;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-
-import java.util.*;
-
-import org.hibernate.annotations.DynamicInsert;
 
 @Entity
 @Table(name = "hexagon")
@@ -39,11 +39,8 @@ public class Hexagon {
 	@Column(name = "numero", nullable = false)
 	private Integer numero;
 
-	@OneToOne(mappedBy = "hexagon", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-	private Hexagon lladre;
-	
-	@OneToMany(mappedBy = "hexagon", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY) 
-	private List<HexagonVertex> hexagonvertices= new ArrayList();
+	@OneToMany(mappedBy = "hexagon", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	private List<HexagonVertex> hexagonvertices = new ArrayList<>();
 	
 	public Integer getQ() {
 		return q;
@@ -89,14 +86,6 @@ public class Hexagon {
 		this.partida = partida;
 	}
 
-	public Hexagon getLladre() {
-		return lladre;
-	}
-
-	public void setLladre(Hexagon lladre) {
-		this.lladre = lladre;
-	}
-
 	public List<HexagonVertex> getHexagonvertices() {
 		return hexagonvertices;
 	}
@@ -107,7 +96,7 @@ public class Hexagon {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(hexagonvertices, id, lladre, numero, partida, q, r, terreny);
+		return Objects.hash(hexagonvertices, id, numero, partida, q, r, terreny);
 	}
 	
 	@Override
@@ -120,9 +109,8 @@ public class Hexagon {
 			return false;
 		Hexagon other = (Hexagon) obj;
 		return Objects.equals(hexagonvertices, other.hexagonvertices) && Objects.equals(id, other.id)
-				&& Objects.equals(lladre, other.lladre) && Objects.equals(numero, other.numero)
-				&& Objects.equals(partida, other.partida) && Objects.equals(q, other.q) && Objects.equals(r, other.r)
-				&& terreny == other.terreny;
+				&& Objects.equals(numero, other.numero) && Objects.equals(partida, other.partida)
+				&& Objects.equals(q, other.q) && Objects.equals(r, other.r) && terreny == other.terreny;
 	}
 
 }

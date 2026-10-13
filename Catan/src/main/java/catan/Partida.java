@@ -17,6 +17,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -72,13 +73,13 @@ public class Partida {
 	@OneToMany(mappedBy = "partida", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<Jugador> jugadors = new ArrayList<>();
 	
-	@OneToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "actiu", nullable = true)
-	private int actiu;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "actiu_jugador_id", nullable = true)
+	private Jugador actiu;
 	
-	@OneToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "guanyador", nullable = true)
-	private int guanyador;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "guanyador_jugador_id", nullable = true)
+	private Jugador guanyador;
 	
 	@OneToMany(mappedBy = "partida", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<CartaDesenvolupament> pila = new ArrayList<>();
@@ -86,7 +87,7 @@ public class Partida {
 	@OneToMany(mappedBy = "partida", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<Hexagon> tauler = new ArrayList<>();
 	
-	@OneToOne(fetch = FetchType.LAZY, optional = false)
+	@OneToOne(fetch = FetchType.LAZY, optional = true)
 	@JoinColumn(name = "lladre", nullable = true)
 	private Hexagon lladre;
 	
@@ -104,19 +105,19 @@ public class Partida {
 		this.jugadors = jugadors;
 	}
 
-	public int getActiu() {
+	public Jugador getActiu() {
 		return actiu;
 	}
 
-	public void setActiu(int actiu) {
+	public void setActiu(Jugador actiu) {
 		this.actiu = actiu;
 	}
 
-	public int getGuanyador() {
+	public Jugador getGuanyador() {
 		return guanyador;
 	}
 
-	public void setGuanyador(int guanyador) {
+	public void setGuanyador(Jugador guanyador) {
 		this.guanyador = guanyador;
 	}
 
@@ -222,9 +223,7 @@ public class Partida {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(Integer.valueOf(actiu), arestas, dataInici, Boolean.valueOf(dausTirats), estat,
-				Integer.valueOf(guanyador), id, jugadors, lladre, Boolean.valueOf(lladrePendent), pila, puntsPerGuanyar,
-				ronda, tauler, ultimaTirada, vertexs);
+		return Objects.hash(id);
 	}
 
 	@Override
@@ -236,23 +235,15 @@ public class Partida {
 		if (getClass() != obj.getClass())
 			return false;
 		Partida other = (Partida) obj;
-		return actiu == other.actiu && Objects.equals(arestas, other.arestas)
-				&& Objects.equals(dataInici, other.dataInici) && dausTirats == other.dausTirats && estat == other.estat
-				&& guanyador == other.guanyador && Objects.equals(id, other.id)
-				&& Objects.equals(jugadors, other.jugadors) && Objects.equals(lladre, other.lladre)
-				&& lladrePendent == other.lladrePendent && Objects.equals(pila, other.pila)
-				&& Objects.equals(puntsPerGuanyar, other.puntsPerGuanyar) && Objects.equals(ronda, other.ronda)
-				&& Objects.equals(tauler, other.tauler) && Objects.equals(ultimaTirada, other.ultimaTirada)
-				&& Objects.equals(vertexs, other.vertexs);
+		return Objects.equals(id, other.id);
 	}
 
 	@Override
 	public String toString() {
 		return "Partida [id=" + id + ", estat=" + estat + ", dataInici=" + dataInici + ", ronda=" + ronda
 				+ ", ultimaTirada=" + ultimaTirada + ", puntsPerGuanyar=" + puntsPerGuanyar + ", dausTirats="
-				+ dausTirats + ", lladrePendent=" + lladrePendent + ", jugadors=" + jugadors + ", actiu=" + actiu
-				+ ", guanyador=" + guanyador + ", pila=" + pila + ", tauler=" + tauler + ", lladre=" + lladre
-				+ ", arestas=" + arestas + ", vertexs=" + vertexs + "]";
+				+ dausTirats + ", lladrePendent=" + lladrePendent + ", actiu=" + actiu + ", guanyador="
+				+ guanyador + "]";
 	}
 	
 	

@@ -43,20 +43,20 @@ public class Jugador {
 	@Column(name = "cavallers_jugats")
 	private Integer cavallersJugats;
 	
-	@OneToOne(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-	private int actiu;
+	@Column(name = "actiu", nullable = false)
+	private boolean actiu;
 	
-	@OneToOne(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-	private int guanyador;
+	@Column(name = "guanyador", nullable = false)
+	private boolean guanyador;
 	
-	@OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	@Transient
 	private List<CartaDesenvolupament> ma = new ArrayList<>();
 
 	@OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	@Size(max=5)
 	private List<RecursJugador> inventari = new ArrayList<>();
 	
-	@OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	@Transient
 	private List<Construccio> propietari = new ArrayList<>();
 	
 	public String getNom() {
@@ -91,19 +91,19 @@ public class Jugador {
 		this.cavallersJugats = cavallersJugats;
 	}
 
-	public int getActiu() {
+	public boolean isActiu() {
 		return actiu;
 	}
 
-	public void setActiu(int actiu) {
+	public void setActiu(boolean actiu) {
 		this.actiu = actiu;
 	}
 
-	public int getGuanyador() {
+	public boolean isGuanyador() {
 		return guanyador;
 	}
 
-	public void setGuanyador(int guanyador) {
+	public void setGuanyador(boolean guanyador) {
 		this.guanyador = guanyador;
 	}
 
@@ -137,8 +137,7 @@ public class Jugador {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(Integer.valueOf(actiu), cavallersJugats, color, Integer.valueOf(guanyador), id, ma, nom,
-				ordreTorn, partida, propietari);
+		return Objects.hash(id);
 	}
 
 	@Override
@@ -150,17 +149,14 @@ public class Jugador {
 		if (getClass() != obj.getClass())
 			return false;
 		Jugador other = (Jugador) obj;
-		return actiu == other.actiu && Objects.equals(cavallersJugats, other.cavallersJugats) && color == other.color
-				&& guanyador == other.guanyador && Objects.equals(id, other.id) && Objects.equals(ma, other.ma)
-				&& Objects.equals(nom, other.nom) && Objects.equals(ordreTorn, other.ordreTorn)
-				&& Objects.equals(partida, other.partida) && Objects.equals(propietari, other.propietari);
+		return Objects.equals(id, other.id);
 	}
 
 	@Override
 	public String toString() {
-		return "Jugador [id=" + id + ", partida=" + partida + ", nom=" + nom + ", color=" + color + ", ordreTorn="
-				+ ordreTorn + ", cavallersJugats=" + cavallersJugats + ", actiu=" + actiu + ", guanyador=" + guanyador
-				+ ", ma=" + ma + ", propietari=" + propietari + "]";
+		return "Jugador [id=" + id + ", nom=" + nom + ", color=" + color + ", ordreTorn=" + ordreTorn
+				+ ", cavallersJugats=" + cavallersJugats + ", actiu=" + actiu + ", guanyador=" + guanyador
+				+ "]";
 	}
 	
 	

@@ -26,14 +26,14 @@ public class Aresta {
 	private Integer codi;
 
 	@NotNull(message = "Els vertexs son obligatoris")
-	@OneToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "vertexA", nullable = false)
-	private Integer vertexA;
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "vertex_a_id", nullable = false)
+	private Vertex vertexA;
 
 	@NotNull(message = "Els vertexs son obligatoris")
-	@OneToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "vertexB", nullable = false)
-	private Integer vertexB;
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "vertex_b_id", nullable = false)
+	private Vertex vertexB;
 	
 	@OneToOne(mappedBy = "aresta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	private Carretera carretera;
@@ -54,19 +54,19 @@ public class Aresta {
 		this.partida = partida;
 	}
 	
-	public Integer getVertexA() {
+	public Vertex getVertexA() {
 		return vertexA;
 	}
 
-	public void setVertexA(Integer vertexA) {
+	public void setVertexA(Vertex vertexA) {
 		this.vertexA = vertexA;
 	}
 
-	public Integer getVertexB() {
+	public Vertex getVertexB() {
 		return vertexB;
 	}
 
-	public void setVertexB(Integer vertexB) {
+	public void setVertexB(Vertex vertexB) {
 		this.vertexB = vertexB;
 	}
 

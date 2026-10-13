@@ -2,8 +2,7 @@ package catan;
 
 import jakarta.persistence.*;
 
-@Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@MappedSuperclass
 public abstract class Construccio {
 
 	@Id
@@ -14,5 +13,16 @@ public abstract class Construccio {
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "jugador_id", nullable = false)
 	private Jugador jugador;
-	
+
+	public Integer getId() {
+		return id;
+	}
+
+	public Jugador getJugador() {
+		return jugador;
+	}
+
+	public void setJugador(Jugador jugador) {
+		this.jugador = jugador;
+	}
 }

@@ -4,24 +4,43 @@ import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
-/*
- * Singleton per crear la SessionFactory.
- *
- * La SessionFactory és cara de crear (llegeix la configuració, valida les entitats,
- * crea les taules...). Se'n crea UNA per a tota l'aplicació i tots els DAO la comparteixen.
- */
+import catan.Aresta;
+import catan.Assentament;
+import catan.Carretera;
+import catan.CartaDesenvolupament;
+import catan.Ciutat;
+import catan.Hexagon;
+import catan.HexagonVertex;
+import catan.Jugador;
+import catan.Partida;
+import catan.Poblat;
+import catan.RecursJugador;
+import catan.Vertex;
+
 public class SessionManager {
 
 	private static SessionFactory sessionFactory;
 
-	// Constructor privat: ningú pot fer new SessionManager()
 	private SessionManager() {
 	}
 
 	public static synchronized SessionFactory getSessionFactory() {
 		if (sessionFactory == null) {
 			try {
-				sessionFactory = new Configuration().configure("daoHibernate.cfg.xml").buildSessionFactory();
+				Configuration configuration = new Configuration().configure("hibernate.cfg.xml");
+				configuration.addAnnotatedClass(Partida.class);
+				configuration.addAnnotatedClass(Jugador.class);
+				configuration.addAnnotatedClass(Hexagon.class);
+				configuration.addAnnotatedClass(HexagonVertex.class);
+				configuration.addAnnotatedClass(Vertex.class);
+				configuration.addAnnotatedClass(Aresta.class);
+				configuration.addAnnotatedClass(Carretera.class);
+				configuration.addAnnotatedClass(Assentament.class);
+				configuration.addAnnotatedClass(Ciutat.class);
+				configuration.addAnnotatedClass(Poblat.class);
+				configuration.addAnnotatedClass(CartaDesenvolupament.class);
+				configuration.addAnnotatedClass(RecursJugador.class);
+				sessionFactory = configuration.buildSessionFactory();
 			} catch (HibernateException e) {
 				System.err.println("Error al crear la SessionFactory: " + e.getMessage());
 				throw new ExceptionInInitializerError(e);
@@ -30,7 +49,6 @@ public class SessionManager {
 		return sessionFactory;
 	}
 
-	// Cridar-lo al final del programa: allibera les connexions
 	public static synchronized void tancar() {
 		if (sessionFactory != null) {
 			sessionFactory.close();
