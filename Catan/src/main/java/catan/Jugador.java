@@ -54,6 +54,9 @@ public class Jugador {
 
 	@OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	@Size(max=5)
+	private List<RecursJugador> inventari = new ArrayList<>();
+	
+	@OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<Construccio> propietari = new ArrayList<>();
 	
 	public String getNom() {

@@ -11,4 +11,8 @@ public abstract class Construccio {
 	@Column(name = "id")
 	private Integer id;
 	
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "jugador_id", nullable = false)
+	private Jugador jugador;
+	
 }
