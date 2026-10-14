@@ -135,6 +135,14 @@ public class Jugador {
 		this.propietari = propietari;
 	}
 	
+	public List<RecursJugador> getInventari() {
+		return inventari;
+	}
+
+	public void setInventari(List<RecursJugador> inventari) {
+		this.inventari = inventari;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(id);

@@ -1,5 +1,7 @@
 package catan;
 
+import java.util.Objects;
+
 import jakarta.persistence.*;
 
 @MappedSuperclass
@@ -23,6 +25,33 @@ public abstract class Construccio {
 	}
 
 	public void setJugador(Jugador jugador) {
+		this.jugador = jugador;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, jugador);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Construccio other = (Construccio) obj;
+		return Objects.equals(id, other.id) && Objects.equals(jugador, other.jugador);
+	}
+
+	@Override
+	public String toString() {
+		return "Construccio [id=" + id + ", jugador=" + jugador + "]";
+	}
+
+	public Construccio(Jugador jugador) {
+		super();
 		this.jugador = jugador;
 	}
 }
