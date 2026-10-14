@@ -1,14 +1,12 @@
 package DAOcatan;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-import catan.ColorJugador;
-import catan.EstatPartida;
-import catan.Jugador;
 import catan.Partida;
 
 public class Main {
@@ -16,31 +14,20 @@ public class Main {
 	public static void main(String[] args) {
 		System.out.println("Iniciant l'aplicació Catan...");
 		try {
-			Partida partida = new Partida();
-			partida.setEstat(EstatPartida.PREPARACIO);
-			partida.setDataInici(LocalDate.now());
-			partida.setRonda(1);
-			partida.setUltimaTirada(3);
-			partida.setPuntsPerGuanyar(10);
-			partida.setDausTirats(false);
-			partida.setLladrePendent(false);
+			
+			List<String> noms = new ArrayList<String>();
+			
+			noms.add("Pajuelo");
+			noms.add("Ana");
+			noms.add("Claudia");
 
-			Jugador jugador = new Jugador();
-			jugador.setNom("Anna");
-			jugador.setColor(ColorJugador.BLAU);
-			jugador.setOrdreTorn(1);
-			jugador.setCavallersJugats(0);
-			jugador.setActiu(true);
-			jugador.setGuanyador(false);
-			jugador.setPartida(partida);
+			PartidaDao partidaDao = new PartidaDao();
+			
+			int partida_id = partidaDao.iniciarPartida(noms);
 
-			partida.getJugadors().add(jugador);
-			partida.setActiu(jugador);
-
-			int id = inserir(partida);
-			System.out.println("Partida insertada amb id=" + id);
+			System.out.println("Partida insertada amb id=" + partida_id);
 			llistarTots();
-			Partida trobada = cercar(id);
+			Partida trobada = cercar(partida_id);
 			if (trobada != null) {
 				trobada.setRonda(2);
 				actualitzar(trobada);

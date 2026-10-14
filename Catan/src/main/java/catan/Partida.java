@@ -97,6 +97,10 @@ public class Partida {
 	@OneToMany(mappedBy = "partida", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<Vertex> vertexs = new ArrayList<>();
 	
+	public Partida() {
+		super();
+	}
+
 	public List<Jugador> getJugadors() {
 		return jugadors;
 	}

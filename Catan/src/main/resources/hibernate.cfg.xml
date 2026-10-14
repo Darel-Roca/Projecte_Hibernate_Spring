@@ -12,5 +12,17 @@
 		<property name="hibernate.show_sql">true</property>
 		<property name="hibernate.format_sql">true</property>
 		<property name="hibernate.highlight_sql">true</property>
+		<mapping class="catan.Partida"/>
+        <mapping class="catan.Jugador"/>
+        <mapping class="catan.Hexagon"/>
+        <mapping class="catan.Vertex"/>
+        <mapping class="catan.Aresta"/>
+        <mapping class="catan.CartaDesenvolupament"/>
+        <mapping class="catan.Construccio"/>
+        <mapping class="catan.HexagonVertex"/>
+        <mapping class="catan.RecursJugador"/>
+        <mapping class="catan.Ciutat"/>
+        <mapping class="catan.Poblat"/>
+        <mapping class="catan.Carretera"/>
 	</session-factory>
 </hibernate-configuration>
