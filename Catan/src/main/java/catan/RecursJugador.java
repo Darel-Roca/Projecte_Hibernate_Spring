@@ -81,5 +81,13 @@ public class RecursJugador {
 		return "RecursJugador [id=" + id + ", jugador=" + jugador + ", tipus=" + tipus + ", quantitat=" + quantitat
 				+ "]";
 	}
+
+	public RecursJugador(Jugador jugador, @NotNull(message = "El tipus és obligatori") TipusRecurs tipus,
+			@NotNull(message = "La quantitat és obligatoria") @Min(value = 0, message = "La quantitat no pot ser negativa") Integer quantitat) {
+		super();
+		this.jugador = jugador;
+		this.tipus = tipus;
+		this.quantitat = quantitat;
+	}
 	
 }
