@@ -16,8 +16,11 @@ import catan.Aresta;
 import catan.ColorJugador;
 import catan.EstatPartida;
 import catan.Hexagon;
+import catan.HexagonVertex;
 import catan.Jugador;
 import catan.Partida;
+import catan.RecursJugador;
+import catan.TipusRecurs;
 import catan.Vertex;
 import catan.TipusTerreny;
 
@@ -39,16 +42,76 @@ public class PartidaDao extends GenericDao<Partida, Integer> implements IPartida
 	        novaPartida.setDataInici(LocalDate.now());
 	        novaPartida.setRonda(1); 
 	        novaPartida.setUltimaTirada(1); 
-	        novaPartida.setPuntsPerGuanyar(10);   
+	        novaPartida.setPuntsPerGuanyar(10);
 	        novaPartida.setDausTirats(false);
 	        novaPartida.setLladrePendent(false);
 
 	        session.persist(novaPartida); 
 
+	        List<String> nomsBarrejats = new ArrayList<>(nomsJugadors);
+	        Collections.shuffle(nomsBarrejats);
+
+	        ColorJugador[] colors = ColorJugador.values();
+	        List<Jugador> jugadorsPartida = new ArrayList<>();
+
+	        for (int i = 0; i < nomsBarrejats.size(); i++) {
+	            Jugador j = new Jugador();
+	            j.setNom(nomsBarrejats.get(i));
+	            j.setPartida(novaPartida);
+	            j.setColor(colors[i]); 
+	            j.setOrdreTorn(i + 1); 
+	            j.setCavallersJugats(0); 
+
+	            session.persist(j);
+	            jugadorsPartida.add(j);
+
+	            for (TipusRecurs tipus : TipusRecurs.values()) {
+	                RecursJugador rj = new RecursJugador();
+	                rj.setJugador(j);
+	                rj.setTipus(tipus);
+	                rj.setQuantitat(0);
+	                session.persist(rj);
+	            }
+	        }
+	        novaPartida.setJugadors(jugadorsPartida);
+
+	        String rutaHexagons = "src/main/resources/dades/hexagons.csv";
+	        String rutaVertexs = "src/main/resources/dades/vertexs.csv";
+	        String rutaArestes = "src/main/resources/dades/arestes.csv";
+	        String rutaHexagonVertex = "src/main/resources/dades/hexagon_vertex.csv";
+
+	        List<Hexagon> hexagons = carregarHexagonsDesdeCSV(rutaHexagons, novaPartida);
+	        List<Vertex> vertexs = carregarVertexsDesdeCSV(rutaVertexs); 
+	        List<Aresta> arestes = carregarArestesDesdeCSV(rutaArestes);
+	        carregarHexagonVertexDesdeCSV(rutaHexagonVertex, hexagons, vertexs, session);
 	        
-	        // CSV's
-	        
-	        
+	        generarMapaAleatori(hexagons);
+
+	        Hexagon hexagonDesert = null;
+	        for (Hexagon h : hexagons) {
+	            session.persist(h);
+	            if (TipusTerreny.DESERT.equals(h.getTerreny())) {
+	                hexagonDesert = h;
+	            }
+	        }
+	        novaPartida.setTauler(hexagons);
+
+	        if (hexagonDesert != null) {
+	            novaPartida.setLladre(hexagonDesert); 
+	        }
+
+	        for (Vertex v : vertexs) {
+	            v.setPartida(novaPartida);
+	            session.persist(v);
+	        }
+
+	        for (Aresta a : arestes) {
+	            a.setPartida(novaPartida);
+	            session.persist(a);
+	        }
+
+	        session.merge(novaPartida);
+
 	        tx.commit();
 	    } catch (Exception e) {
 	        if (tx != null && tx.isActive()) {
@@ -61,6 +124,8 @@ public class PartidaDao extends GenericDao<Partida, Integer> implements IPartida
 
 	    return novaPartida.getId(); 
 	}
+
+
 	
 	private void generarMapaAleatori(List<Hexagon> hexagons) {
 		List<TipusTerreny> terrenys = new ArrayList<>(List.of(
@@ -97,9 +162,16 @@ public class PartidaDao extends GenericDao<Partida, Integer> implements IPartida
 		List<Hexagon> llista = new ArrayList<>();
 		try (BufferedReader br = new BufferedReader(new FileReader(ruta))) {
 			String linia;
+			boolean esPrimeraLinia = true; 
+			
 			while ((linia = br.readLine()) != null) {
 				if (linia.trim().isEmpty()) continue;
-				
+				if (esPrimeraLinia) {
+					esPrimeraLinia = false;
+					if (linia.toLowerCase().contains("codi") || linia.toLowerCase().contains("q") || linia.toLowerCase().contains("r")) {
+						continue; 
+					}
+				}
 				String[] camps = linia.split(","); 
 				Hexagon h = new Hexagon();
 				h.setPartida(partida); 
@@ -114,6 +186,7 @@ public class PartidaDao extends GenericDao<Partida, Integer> implements IPartida
 		}
 		return llista;
 	}
+
 
 	private List<Vertex> carregarVertexsDesdeCSV(String ruta) throws Exception {
 		List<Vertex> llista = new ArrayList<>();
@@ -133,6 +206,46 @@ public class PartidaDao extends GenericDao<Partida, Integer> implements IPartida
 		return llista;
 	}
 
+	private void carregarHexagonVertexDesdeCSV(String ruta, List<Hexagon> hexagons, List<Vertex> vertexs, Session session) throws Exception {
+		try (BufferedReader br = new BufferedReader(new FileReader(ruta))) {
+			String linia;
+			boolean esPrimeraLinia = true;
+			while ((linia = br.readLine()) != null) {
+				if (linia.trim().isEmpty()) continue;	
+				if (esPrimeraLinia) {
+					esPrimeraLinia = false;
+					if (linia.toLowerCase().contains("pos") || linia.toLowerCase().contains("codi") || linia.toLowerCase().contains("q")) {
+						continue;
+					}
+				}
+				String[] camps = linia.split(","); 
+				int qHexagon = Integer.parseInt(camps[0].trim());
+				int rHexagon = Integer.parseInt(camps[1].trim());
+				int codiVertex = Integer.parseInt(camps[2].trim());
+				int posicio = Integer.parseInt(camps[3].trim());
+				Hexagon hex = hexagons.stream()
+						.filter(h -> h.getQ() == qHexagon && h.getR() == rHexagon)
+						.findFirst()
+						.orElse(null);	
+				Vertex vtx = vertexs.stream()
+						.filter(v -> v.getCodi() != null && v.getCodi() == codiVertex)
+						.findFirst()
+						.orElse(null);
+				if (hex != null && vtx != null) {
+					HexagonVertex hv = new HexagonVertex();
+					hv.setHexagon(hex);
+					hv.setVertex(vtx);
+					hv.setPosicio(posicio);
+					
+					session.persist(hv);
+				}
+			}
+		}
+	}
+
+
+
+	
 	@Override
 	public List<Hexagon> mostraTauler(int idPartida) { return null; }
 
@@ -145,17 +258,4 @@ public class PartidaDao extends GenericDao<Partida, Integer> implements IPartida
 	@Override
 	public void comprovarVictoria(int idPartida) { }
 	
-	private <E> E buscarPerNom(Session session, Class<E> classe, String nom) {
-		return session.createQuery("FROM " + classe.getName() + " e WHERE e.nom = :nom", classe)
-				.setParameter("nom", nom)
-				.uniqueResult();
-	}
-
-	private <E> E obtenir(Map<String, E> mapa, String clau, String fitxer) {
-		E e = mapa.get(clau);
-		if (e == null) {
-			throw new IllegalStateException(fitxer + ": no existeix '" + clau + "'");
-		}
-		return e;
-	}
 }

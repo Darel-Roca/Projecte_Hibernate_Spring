@@ -53,6 +53,30 @@ public class Vertex {
 	public Integer getId() {
 		return id;
 	}
+	
+	public Partida getPartida() {
+		return partida;
+	}
+
+	public void setPartida(Partida partida) {
+		this.partida = partida;
+	}
+
+	public Aresta getArestaA() {
+		return arestaA;
+	}
+
+	public void setArestaA(Aresta arestaA) {
+		this.arestaA = arestaA;
+	}
+
+	public Aresta getArestaB() {
+		return arestaB;
+	}
+
+	public void setArestaB(Aresta arestaB) {
+		this.arestaB = arestaB;
+	}
 
 	@Override
 	public int hashCode() {

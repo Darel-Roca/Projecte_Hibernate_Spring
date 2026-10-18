@@ -22,7 +22,7 @@ public class RecursJugador {
 	
 	@NotNull(message = "El tipus és obligatori")
 	@Enumerated(EnumType.STRING)
-	@Column(name = "tipus", nullable = false, unique = true)
+	@Column(name = "tipus", nullable = false)
 	private TipusRecurs tipus;
 	
 	@NotNull(message = "La quantitat és obligatoria")
@@ -88,6 +88,10 @@ public class RecursJugador {
 		this.jugador = jugador;
 		this.tipus = tipus;
 		this.quantitat = quantitat;
+	}
+
+	public RecursJugador() {
+		super();
 	}
 	
 }
