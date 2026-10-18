@@ -45,20 +45,11 @@ public class Main {
             partidaDao.comprovarVictoria(partida_id);
             partidaDao.mostraPartida(partida_id);
 
-            // =================================================
-            // NOVES FUNCIONS DEL JUGADORD AO
-            // =================================================
-
             JugadorDao jugadorDao = new JugadorDao();
-
-            // Agafar un jugador de la partida creada
-            // Canvia l'ID si els jugadors tenen altres identificadors.
             int idJugador = 1;
             int idAresta = 1;
             int idVertex = 1;
-
-            // 1. Mostrar els recursos del jugador
-            System.out.println("\n===== RECURSOS DEL JUGADOR =====");
+            
             List<RecursJugador> recursos =
                     jugadorDao.mostrarRecursos(idJugador);
 
@@ -68,33 +59,21 @@ public class Main {
                 }
             }
 
-            // 2. Construir una carretera
-            System.out.println("\n===== CONSTRUIR CARRETERA =====");
             jugadorDao.construirCarretera(idJugador, idAresta);
 
-            // 3. Construir un poblat
-            System.out.println("\n===== CONSTRUIR POBLAT =====");
             jugadorDao.construirPoblat(idJugador, idVertex);
 
-            // 4. Millorar un poblat a ciutat
-            System.out.println("\n===== MILLORAR A CIUTAT =====");
             jugadorDao.millorarACiutat(idJugador, idVertex);
 
-            // 5. Comerciar amb la banca
-            System.out.println("\n===== COMERÇ AMB LA BANCA =====");
             jugadorDao.comerciarBanca(
                     idJugador,
                     TipusRecurs.FUSTA,
                     TipusRecurs.MAO
             );
 
-            // 6. Calcular els punts del jugador
-            System.out.println("\n===== PUNTS DEL JUGADOR =====");
             int punts = jugadorDao.calcularPunts(idJugador);
             System.out.println("Punts de victòria: " + punts);
 
-            // 7. Passar el torn
-            System.out.println("\n===== PASSAR TORN =====");
             jugadorDao.passarTorn(idJugador);
 
         } catch (Exception e) {
