@@ -11,7 +11,6 @@ import catan.Partida;
 public class Main {
 
 	public static void main(String[] args) {
-		System.out.println("Iniciant l'aplicació Catan...");
 		try {
 			List<String> noms = new ArrayList<String>();
 			noms.add("Pajuelo");

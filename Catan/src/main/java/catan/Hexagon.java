@@ -21,6 +21,10 @@ public class Hexagon {
 	@JoinColumn(name = "partida_id", nullable = false)
 	private Partida partida;
 
+	@NotNull(message = "El codi és obligatori")
+	@Column(name = "codi", nullable = false)
+	private Integer codi;
+	
 	@NotNull
 	@Column(name = "coordenada_q", nullable = false)
 	private Integer q;
@@ -41,7 +45,15 @@ public class Hexagon {
 
 	@OneToMany(mappedBy = "hexagon", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<HexagonVertex> hexagonvertices = new ArrayList<>();
-	
+
+	public Integer getCodi() {
+		return codi;
+	}
+
+	public void setCodi(Integer codi) {
+		this.codi = codi;
+	}
+
 	public Integer getQ() {
 		return q;
 	}
