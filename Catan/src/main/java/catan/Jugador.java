@@ -49,8 +49,8 @@ public class Jugador {
 	@Column(name = "guanyador", nullable = false)
 	private boolean guanyador;
 	
-	@Transient
-	private List<CartaDesenvolupament> ma = new ArrayList<>();
+	@OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CartaDesenvolupament> ma = new ArrayList<>();
 
 	@OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	@Size(max=5)

@@ -11,7 +11,7 @@ public interface IPartidaDao extends IGenericDao<Partida, Integer> {
 	
 	List<Hexagon> mostraTauler(int idPartida);
 	
-	Partida mostraPartida(int idPartida);
+	void mostraPartida(int idPartida);
 	
 	void tirarDaus(int idPartida);
 	

@@ -37,11 +37,9 @@ public class Main {
 			for (Hexagon h : tauler) {
 				System.out.println(h);
 			}
-			
-			
 			partidaDao.comprovarVictoria(partida_id);
 			
-			
+			partidaDao.mostraPartida(partida_id);
 			
 		} catch (Exception e) {
 			System.err.println("S'ha produït un error en l'execució del Main:");

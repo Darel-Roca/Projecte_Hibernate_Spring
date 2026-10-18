@@ -301,7 +301,76 @@ public class PartidaDao extends GenericDao<Partida, Integer> implements IPartida
 
 
 	@Override
-	public Partida mostraPartida(int idPartida) { return null; }
+	public void mostraPartida(int idPartida) {
+		Session session = SessionManager.getSessionFactory().openSession();
+		try {
+			Partida partida = session.find(Partida.class, idPartida);
+			if (partida == null) {
+				System.out.println("No s'ha trobat cap partida amb ID: " + idPartida);
+				return; 
+			}
+
+			String nomJugadorActiu = "Cap (Fase de Preparació)";
+			if (partida.getActiu() != null) {
+				nomJugadorActiu = partida.getActiu().getNom();
+			}
+
+			System.out.println("\n=======================================================");
+			System.out.println("📊 ESTAT DE LA PARTIDA (ID: " + idPartida + ")");
+			System.out.println("=======================================================");
+			System.out.println("-> Estat actual:    " + partida.getEstat());
+			System.out.println("-> Ronda:           " + partida.getRonda());
+			System.out.println("-> Jugador Actiu:   " + nomJugadorActiu);
+			System.out.println("-> Última Tirada:   " + partida.getUltimaTirada());
+			System.out.println("-------------------------------------------------------");
+
+			for (Jugador j : partida.getJugadors()) {
+				System.out.println("👤 JUGADOR: " + j.getNom() + " (Color: " + j.getColor() + ")");
+
+				Long numPoblats = session.createQuery(
+					"SELECT count(p) FROM Poblat p WHERE p.jugador.id = :jId", Long.class)
+					.setParameter("jId", j.getId())
+					.getSingleResult();
+
+				Long numCiutats = session.createQuery(
+					"SELECT count(c) FROM Ciutat c WHERE c.jugador.id = :jId", Long.class)
+					.setParameter("jId", j.getId())
+					.getSingleResult();
+
+				Long numCarreteres = session.createQuery(
+					"SELECT count(ca) FROM Carretera ca WHERE ca.jugador.id = :jId", Long.class)
+					.setParameter("jId", j.getId())
+					.getSingleResult();
+
+				Long numCartesPunts = session.createQuery(
+					"SELECT count(cd) FROM CartaDesenvolupament cd WHERE cd.jugador.id = :jId AND cd.estat = 'PUNT_VICTORIA'", Long.class)
+					.setParameter("jId", j.getId())
+					.getSingleResult();
+
+				int puntsTotals = (numPoblats.intValue() * 1) + (numCiutats.intValue() * 2) + numCartesPunts.intValue();
+
+				Long totalRecursos = session.createQuery(
+					"SELECT sum(rj.quantitat) FROM RecursJugador rj WHERE rj.jugador.id = :jId", Long.class)
+					.setParameter("jId", j.getId())
+					.getSingleResult();
+				
+				long recursosSegurs = (totalRecursos != null) ? totalRecursos : 0;
+
+				System.out.printf("   ├─ Punts de Victòria:  %d\n", puntsTotals);
+				System.out.printf("   ├─ Nombre de Poblats:  %d\n", numPoblats);
+				System.out.printf("   ├─ Nombre de Ciutats:  %d\n", numCiutats);
+				System.out.printf("   ├─ Nombre de Carreteres: %d\n", numCarreteres);
+				System.out.printf("   └─ Total de Recursos:   %d (Detall ocult)\n", recursosSegurs);
+				System.out.println("-------------------------------------------------------");
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			session.close();
+		}
+	}
+
 
 	@Override
 	public void tirarDaus(int idPartida) { }

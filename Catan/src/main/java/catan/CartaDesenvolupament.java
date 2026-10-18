@@ -32,6 +32,10 @@ public class CartaDesenvolupament {
 	@JoinColumn(name = "partida_id", nullable = false)
 	private Partida partida;
 	
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "jugador_id", nullable = true) 
+    private Jugador jugador;
+	
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "estat", nullable = false, length = 15)
@@ -86,6 +90,14 @@ public class CartaDesenvolupament {
 		this.partida = partida;
 	}
 	
+	public Jugador getJugador() {
+		return jugador;
+	}
+
+	public void setJugador(Jugador jugador) {
+		this.jugador = jugador;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
