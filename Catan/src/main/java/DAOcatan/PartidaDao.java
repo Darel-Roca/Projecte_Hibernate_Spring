@@ -371,9 +371,112 @@ public class PartidaDao extends GenericDao<Partida, Integer> implements IPartida
 		}
 	}
 
-
 	@Override
-	public void tirarDaus(int idPartida) { }
+	public void tirarDaus(int idPartida) {
+		Session session = SessionManager.getSessionFactory().openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			Partida partida = session.find(Partida.class, idPartida);
+			if (partida == null) {
+				System.out.println("No s'ha trobat la partida amb ID: " + idPartida);
+				session.close();
+				return;
+			}
+			if (partida.isDausTirats()) {
+				throw new IllegalStateException("El jugador actiu ja ha tirat els daus en aquest torn.");
+			}
+			int dau1 = (int) (Math.random() * 6) + 1;
+			int dau2 = (int) (Math.random() * 6) + 1;
+			int resultatTirada = dau1 + dau2;
+
+			partida.setUltimaTirada(resultatTirada);
+			partida.setDausTirats(true);
+			
+			System.out.println("\n ELS DAUS HAN RATLLAT UN: " + resultatTirada + " (" + dau1 + " + " + dau2 + ")");
+			System.out.println("=========================================");
+
+			if (resultatTirada == 7) {
+				System.out.println("🦹 ¡Ha sortit un 7! S'activa el lladre. No hi ha producció de recursos.");
+				partida.setLladrePendent(true);
+			} 
+			else {
+				int lladreHexId = (partida.getLladre() != null) ? partida.getLladre().getId() : -1;
+
+				List<Hexagon> hexagonsProductius = session.createQuery(
+					"FROM Hexagon h WHERE h.partida.id = :pId AND h.numero = :num AND h.id != :lladreId", Hexagon.class)
+					.setParameter("pId", idPartida)
+					.setParameter("num", resultatTirada)
+					.setParameter("lladreId", lladreHexId)
+					.getResultList();
+
+				if (hexagonsProductius.isEmpty()) {
+					System.out.println("ℹ️ Cap hexàgon lliure conté el número " + resultatTirada + ". Ningú rep recursos.");
+				}
+
+				for (Hexagon h : hexagonsProductius) {
+					TipusRecurs recursGenerat = obtenirTipusRecursPerTerreny(h.getTerreny());
+					if (recursGenerat == null) continue;
+
+					List<Object[]> assentamentsAdjacents = session.createQuery(
+						"SELECT a.id, j.id, j.nom " +
+						"FROM HexagonVertex hv " +
+						"JOIN hv.vertex v " +
+						"JOIN v.assentament a " +
+						"JOIN a.jugador j " +
+						"WHERE hv.hexagon.id = :hexId", Object[].class)
+						.setParameter("hexId", h.getId())
+						.getResultList();
+
+					for (Object[] fila : assentamentsAdjacents) {
+						Integer assentamentId = (Integer) fila[0];
+						Integer jugadorId = (Integer) fila[1];
+						String nomJugador = (String) fila[2];
+
+						Object assentamentReal = session.find(catan.Assentament.class, assentamentId);
+						int quantitatAFegir = 0;
+
+						if (assentamentReal instanceof catan.Poblat) {
+							quantitatAFegir = 1;
+						} else if (assentamentReal instanceof catan.Ciutat) {
+							quantitatAFegir = 2;
+						}
+
+						if (quantitatAFegir > 0) {
+							session.createMutationQuery(
+								"UPDATE RecursJugador rj SET rj.quantitat = rj.quantitat + :quant " +
+								"WHERE rj.jugador.id = :jId AND rj.tipus = :tipus")
+								.setParameter("quant", quantitatAFegir)
+								.setParameter("jId", jugadorId)
+								.setParameter("tipus", recursGenerat)
+								.executeUpdate();
+
+							System.out.printf(" Jugador %s rep %d de %s (Hexàgon %d - %s)\n", 
+									nomJugador, quantitatAFegir, recursGenerat, h.getId(), h.getTerreny());
+						}
+					}
+				}
+			}
+
+			session.merge(partida);
+			tx.commit();
+		} catch (Exception e) {
+			if (tx != null && tx.isActive()) tx.rollback();
+			e.printStackTrace();
+		} finally {
+			session.close();
+		}
+	}
+	private TipusRecurs obtenirTipusRecursPerTerreny(TipusTerreny terreny) {
+		switch (terreny) {
+			case BOSC:      return TipusRecurs.FUSTA;
+			case TURONS:    return TipusRecurs.MAO;
+			case PASTURES:  return TipusRecurs.LLANA;
+			case CAMPS:     return TipusRecurs.BLAT;
+			case MUNTANYES: return TipusRecurs.MINERAL;
+			default:        return null;
+		}
+	}
 
 	@Override
 	public void comprovarVictoria(int idPartida) {
