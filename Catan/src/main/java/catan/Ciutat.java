@@ -11,4 +11,8 @@ public class Ciutat extends Assentament {
 		super(jugador, vertex);
 	}
 
+	public Ciutat() {
+		super();
+	}
+	
 }

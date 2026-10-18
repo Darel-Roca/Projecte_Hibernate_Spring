@@ -54,4 +54,10 @@ public abstract class Construccio {
 		super();
 		this.jugador = jugador;
 	}
+
+	public Construccio() {
+		super();
+	}
+	
+	
 }

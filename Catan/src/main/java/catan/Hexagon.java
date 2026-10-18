@@ -125,4 +125,12 @@ public class Hexagon {
 				&& Objects.equals(q, other.q) && Objects.equals(r, other.r) && terreny == other.terreny;
 	}
 
+	@Override
+	public String toString() {
+	    return "Hexagon [id=" + id + ", codi=" + codi + ", q=" + q + ", r=" + r + 
+	           ", terreny=" + terreny + ", numero=" + numero + "]";
+	}
+	
+	
+
 }

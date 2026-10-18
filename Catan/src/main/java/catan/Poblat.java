@@ -11,4 +11,8 @@ public class Poblat extends Assentament {
 		super(jugador, vertex);
 	}
 
+	public Poblat() {
+		super();
+	}
+	
 }

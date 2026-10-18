@@ -110,7 +110,13 @@ public class PartidaDao extends GenericDao<Partida, Integer> implements IPartida
 
 	        carregarHexagonVertexDesdeCSV(rutaHexagonVertex, session);
 
-	        session.merge(novaPartida);
+	        if (hexagonDesert != null) {
+	            session.createMutationQuery(
+	                "UPDATE Partida p SET p.lladre = :lladre WHERE p.id = :partidaId")
+	                .setParameter("lladre", hexagonDesert)
+	                .setParameter("partidaId", novaPartida.getId())
+	                .executeUpdate();
+	        }
 
 	        tx.commit();
 	    } catch (Exception e) {
@@ -128,15 +134,24 @@ public class PartidaDao extends GenericDao<Partida, Integer> implements IPartida
 
 	private void generarMapaAleatori(List<Hexagon> hexagons) {
 		List<TipusTerreny> terrenys = new ArrayList<>(List.of(
-			TipusTerreny.BOSC, TipusTerreny.TURONS, TipusTerreny.PASTURES, 
-			TipusTerreny.CAMPS, TipusTerreny.MUNTANYES, TipusTerreny.DESERT
+			TipusTerreny.DESERT,
+			TipusTerreny.BOSC, TipusTerreny.BOSC, TipusTerreny.BOSC, TipusTerreny.BOSC,
+			TipusTerreny.PASTURES, TipusTerreny.PASTURES, TipusTerreny.PASTURES, TipusTerreny.PASTURES,
+			TipusTerreny.CAMPS, TipusTerreny.CAMPS, TipusTerreny.CAMPS, TipusTerreny.CAMPS,
+			TipusTerreny.TURONS, TipusTerreny.TURONS, TipusTerreny.TURONS,
+			TipusTerreny.MUNTANYES, TipusTerreny.MUNTANYES, TipusTerreny.MUNTANYES
 		));
 		
 		while (terrenys.size() < hexagons.size()) {
 			terrenys.add(TipusTerreny.BOSC); 
 		}
 
-		List<Integer> numeros = new ArrayList<>(List.of(2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12));
+		List<Integer> numeros = new ArrayList<>(List.of(
+			2, 12, 
+			3, 3, 4, 4, 5, 5, 6, 6, 
+			8, 8, 9, 9, 10, 10, 11, 11
+		));
+		
 		while (numeros.size() < hexagons.size()) {
 			numeros.add(2); 
 		}
@@ -218,7 +233,72 @@ public class PartidaDao extends GenericDao<Partida, Integer> implements IPartida
 	}
 
 	@Override
-	public List<Hexagon> mostraTauler(int idPartida) { return null; }
+	public List<Hexagon> mostraTauler(int idPartida) {
+		Session session = SessionManager.getSessionFactory().openSession();
+		List<Hexagon> hexagons = null;
+		try {
+			hexagons = session.createQuery(
+				"FROM Hexagon h WHERE h.partida.id = :idPartida", Hexagon.class)
+				.setParameter("idPartida", idPartida)
+				.getResultList();
+
+			if (hexagons.isEmpty()) {
+				System.out.println("No s'ha trobat cap tauler per a la partida amb ID: " + idPartida);
+				return hexagons;
+			}
+
+			Partida partida = session.find(Partida.class, idPartida);
+			Hexagon hexagonLladre = (partida != null) ? partida.getLladre() : null;
+
+			System.out.println("\nTAULER DE LA PARTIDA (ID: " + idPartida + ")");
+			
+			for (Hexagon h : hexagons) {
+				boolean teLladre = (hexagonLladre != null && hexagonLladre.getId() == h.getId());
+				
+				System.out.printf("Hexàgon [%d] -> Terreny: %s | Número: %d %s\n", 
+						h.getId(), h.getTerreny(), h.getNumero(), teLladre ? "[🦹 LLADRE SITUAT AQUÍ]" : "");
+
+				List<Object[]> dadesVertexs = session.createQuery(
+					"SELECT v.codi, hv.posicio, a.id, j.nom " +
+					"FROM HexagonVertex hv " +
+					"JOIN hv.vertex v " +
+					"LEFT JOIN v.assentament a " +
+					"LEFT JOIN a.jugador j " +
+					"WHERE hv.hexagon.id = :hexId " +
+					"ORDER BY hv.posicio", Object[].class)
+					.setParameter("hexId", h.getId())
+					.getResultList();
+
+				for (Object[] fila : dadesVertexs) {
+					Integer vtxCodi = (Integer) fila[0];
+					Integer posicio = (Integer) fila[1];
+					Integer assentamentId = (Integer) fila[2];
+					String nomPropietari = (String) fila[3];
+
+					String infoConstruccio = "Buit";
+					if (assentamentId != null) {
+						String tipus = "Assentament"; 
+						Object assentamentReal = session.find(catan.Assentament.class, assentamentId);
+						if (assentamentReal != null) {
+							tipus = assentamentReal.getClass().getSimpleName();
+						}
+						infoConstruccio = String.format("%s (Propietari: %s)", tipus, nomPropietari != null ? nomPropietari : "Desconegut");
+					}
+
+					System.out.printf("   └─ Vèrtex Codi %d (Posició: %d) -> %s\n", 
+							vtxCodi, posicio, infoConstruccio);
+				}
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			session.close();
+		}
+		return hexagons;
+	}
+
+
 
 	@Override
 	public Partida mostraPartida(int idPartida) { return null; }
@@ -227,6 +307,61 @@ public class PartidaDao extends GenericDao<Partida, Integer> implements IPartida
 	public void tirarDaus(int idPartida) { }
 
 	@Override
-	public void comprovarVictoria(int idPartida) { }
+	public void comprovarVictoria(int idPartida) {
+		Session session = SessionManager.getSessionFactory().openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+
+			Partida partida = session.find(Partida.class, idPartida);
+			if (partida == null || partida.getEstat() == EstatPartida.FINALITZADA) {
+				session.close();
+				return;
+			}
+			
+			int puntsNecessaris = partida.getPuntsPerGuanyar();
+			Jugador guanyador = null;
+
+			for (Jugador j : partida.getJugadors()) {
+				int puntsTotals = 0;
+
+				Long numPoblats = session.createQuery(
+					"SELECT count(p) FROM Poblat p WHERE p.jugador.id = :jId", Long.class)
+					.setParameter("jId", j.getId())
+					.getSingleResult();
+
+				Long numCiutats = session.createQuery(
+					"SELECT count(c) FROM Ciutat c WHERE c.jugador.id = :jId", Long.class)
+					.setParameter("jId", j.getId())
+					.getSingleResult();
+
+				puntsTotals += (numPoblats.intValue() * 1) + (numCiutats.intValue() * 2);
+
+				System.out.println("-> Jugador " + j.getNom() + " té actualment: " + puntsTotals + " punts.");
+
+				if (puntsTotals >= puntsNecessaris) {
+					guanyador = j;
+					break;
+				}
+			}
+
+			if (guanyador != null) {
+				System.out.println("\n🎉🏆 ¡EL JUGADOR " + guanyador.getNom().toUpperCase() + " HA GUANYAT LA PARTIDA! 🏆🎉");
+				
+				partida.setEstat(EstatPartida.FINALITZADA);
+				partida.setGuanyador(guanyador); 
+				
+				session.merge(partida);
+			}
+
+			tx.commit();
+		} catch (Exception e) {
+			if (tx != null && tx.isActive()) tx.rollback();
+			e.printStackTrace();
+		} finally {
+			session.close();
+		}
+	}
+
 	
 }

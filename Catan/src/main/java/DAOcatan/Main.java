@@ -6,6 +6,7 @@ import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import catan.Hexagon;
 import catan.Partida;
 
 public class Main {
@@ -29,6 +30,19 @@ public class Main {
 				actualitzar(trobada);
 				System.out.println("Partida actualitzada correctament a la ronda 2.");
 			}
+			
+			List<Hexagon> tauler = partidaDao.mostraTauler(partida_id);
+			
+			System.out.println("\n📊 Resum de la llista d'Hexàgons retornada:");
+			for (Hexagon h : tauler) {
+				System.out.println(h);
+			}
+			
+			
+			partidaDao.comprovarVictoria(partida_id);
+			
+			
+			
 		} catch (Exception e) {
 			System.err.println("S'ha produït un error en l'execució del Main:");
 			e.printStackTrace();
@@ -68,11 +82,17 @@ public class Main {
 		}
 	}
 
-	public static void actualitzar(Partida partida) {
+	private static void actualitzar(Partida partida) {
 		try (Session session = SessionManager.getSessionFactory().openSession()) {
 			Transaction tx = session.beginTransaction();
 			try {
-				session.merge(partida);
+				session.createMutationQuery(
+					"UPDATE Partida p SET p.ronda = :ronda, p.estat = :estat WHERE p.id = :id")
+					.setParameter("ronda", partida.getRonda())
+					.setParameter("estat", partida.getEstat())
+					.setParameter("id", partida.getId())
+					.executeUpdate();
+					
 				tx.commit();
 			} catch (RuntimeException e) {
 				if (tx.isActive()) tx.rollback();

@@ -55,5 +55,11 @@ public abstract class Assentament extends Construccio {
 		super(jugador);
 		this.vertex = vertex;
 	}
+
+	public Assentament() {
+		super();
+	}
+	
+	
 	
 }
