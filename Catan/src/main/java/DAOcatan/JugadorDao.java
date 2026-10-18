@@ -9,9 +9,7 @@ import catan.*;
 public class JugadorDao extends GenericDao<Jugador, Integer> implements IJugadorDao {
 	
 	public Jugador agafarJugador(Session session, int idJugador) throws RuntimeException {
-		Jugador jugador = session.createQuery("SELECT j.* FROM jugador j WHERE j.id = :id", Jugador.class)
-				.setParameter("id", idJugador)
-				.uniqueResult();
+		Jugador jugador = session.get(Jugador.class, idJugador);
 		if (jugador == null)
 			throw new RuntimeException(Missatges.JUGADOR_NO_EXISTEIX);
 		return jugador;
@@ -27,9 +25,7 @@ public class JugadorDao extends GenericDao<Jugador, Integer> implements IJugador
 		Session session = sessionFactory.getCurrentSession();
 		try {
 			session.beginTransaction();
-			List<RecursJugador> recursos = session.createQuery("SELECT r.* FROM recursJugador r WHERE r.id = :id", RecursJugador.class)
-					.setParameter("id", idJugador)
-					.getResultList();
+			List<RecursJugador> recursos = agafarJugador(session, idJugador).getInventari();
 			session.getTransaction().commit();
 			return recursos;
 		} catch (RuntimeException e) {
@@ -48,9 +44,7 @@ public class JugadorDao extends GenericDao<Jugador, Integer> implements IJugador
 			// Comprovar el torn del jugador i la partida
 			comprovarTorn(jugador);
 			// Agafar l'aresta
-			Aresta aresta = session.createQuery("SELECT a.* FROM aresta a WHERE a.id = :id", Aresta.class)
-					.setParameter("id", idAresta)
-					.uniqueResult();
+			Aresta aresta = session.get(Aresta.class, idAresta);
 			// Comprovar que l'aresta existeixi
 			if (aresta == null)
 				throw new RuntimeException(Missatges.ARESTA_NO_EXISTEIX);
@@ -131,9 +125,7 @@ public class JugadorDao extends GenericDao<Jugador, Integer> implements IJugador
 			// Comprovar el torn
 			comprovarTorn(jugador);
 			// Agafar el vèrtex
-			Vertex vertex = session.createQuery("select v.* from vertex v where id = :id", Vertex.class)
-					.setParameter("id", idVertex)
-					.uniqueResult();
+			Vertex vertex = session.get(Vertex.class, idVertex);
 			// Comprovar que el vèrtex existeixi
 			if (vertex == null)
 				throw new RuntimeException(Missatges.VERTEX_NO_EXISTEIX);
@@ -208,9 +200,7 @@ public class JugadorDao extends GenericDao<Jugador, Integer> implements IJugador
 			// Comprovar el torn
 			comprovarTorn(jugador);
 			// Agafar el vèrtex
-			Vertex vertex = session.createQuery("select v.* from vertex v where id = :id", Vertex.class)
-					.setParameter("id", idVertex)
-					.uniqueResult();
+			Vertex vertex = session.get(Vertex.class, idVertex);
 			// Comprovar que el vèrtex existeixi
 			if (vertex == null)
 				throw new RuntimeException(Missatges.VERTEX_NO_EXISTEIX);
