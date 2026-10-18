@@ -22,7 +22,7 @@ public class JugadorDao extends GenericDao<Jugador, Integer> implements IJugador
 
 	@Override
 	public List<RecursJugador> mostrarRecursos(int idJugador) {
-		Session session = sessionFactory.getCurrentSession();
+		Session session = SessionManager.getSessionFactory().openSession();
 		try {
 			session.beginTransaction();
 			List<RecursJugador> recursos = agafarJugador(session, idJugador).getInventari();
@@ -36,7 +36,7 @@ public class JugadorDao extends GenericDao<Jugador, Integer> implements IJugador
 
 	@Override
 	public void construirCarretera(int idJugador, int idAresta) {
-		Session session = sessionFactory.getCurrentSession();
+		Session session = SessionManager.getSessionFactory().openSession();
 		try {
 			session.beginTransaction();
 			// Agafar el jugador
@@ -117,7 +117,7 @@ public class JugadorDao extends GenericDao<Jugador, Integer> implements IJugador
 
 	@Override
 	public void construirPoblat(int idJugador, int idVertex) {
-		Session session = sessionFactory.getCurrentSession();
+		Session session = SessionManager.getSessionFactory().openSession();
 		try {
 			session.beginTransaction();
 			// Agafar el jugador
@@ -192,7 +192,7 @@ public class JugadorDao extends GenericDao<Jugador, Integer> implements IJugador
 
 	@Override
 	public void millorarACiutat(int idJugador, int idVertex) {
-		Session session = sessionFactory.getCurrentSession();
+		Session session = SessionManager.getSessionFactory().openSession();
 		try {
 			session.beginTransaction();
 			// Agafar el jugador
@@ -249,7 +249,7 @@ public class JugadorDao extends GenericDao<Jugador, Integer> implements IJugador
 
 	@Override
 	public void comerciarBanca(int idJugador, TipusRecurs dona, TipusRecurs rep) {
-		Session session = sessionFactory.getCurrentSession();
+		Session session = SessionManager.getSessionFactory().openSession();
 		try {
 			session.beginTransaction();
 			// Agafar el jugador
@@ -289,7 +289,7 @@ public class JugadorDao extends GenericDao<Jugador, Integer> implements IJugador
 	public int calcularPunts(int idJugador) {
 		// Preparar la variable del total de punts
 		int total = 0;
-		Session session = sessionFactory.getCurrentSession();
+		Session session = SessionManager.getSessionFactory().openSession();
 		try {
 			session.beginTransaction();
 			// Agafar el jugador
@@ -316,7 +316,7 @@ public class JugadorDao extends GenericDao<Jugador, Integer> implements IJugador
 
 	@Override
 	public void passarTorn(int idJugador) {
-		Session session = sessionFactory.getCurrentSession();
+		Session session = SessionManager.getSessionFactory().openSession();
 		try {
 			session.beginTransaction();
 			// Agafar el jugador
