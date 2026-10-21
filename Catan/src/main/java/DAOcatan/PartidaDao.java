@@ -5,7 +5,9 @@ import java.io.FileReader;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -55,9 +57,9 @@ public class PartidaDao extends GenericDao<Partida, Integer> implements IPartida
 	            Jugador j = new Jugador();
 	            j.setNom(nomsBarrejats.get(i));
 	            j.setPartida(novaPartida);
-	            j.setColor(colors[i]); 
-	            j.setOrdreTorn(i + 1); 
-	            j.setCavallersJugats(0); 
+	            j.setColor(colors[i]);
+	            j.setOrdreTorn(i + 1);
+	            j.setCavallersJugats(0);
 
 	            session.persist(j);
 	            jugadorsPartida.add(j);
@@ -67,9 +69,11 @@ public class PartidaDao extends GenericDao<Partida, Integer> implements IPartida
 	                rj.setJugador(j);
 	                rj.setTipus(tipus);
 	                rj.setQuantitat(0);
+
 	                session.persist(rj);
 	            }
 	        }
+
 	        novaPartida.setJugadors(jugadorsPartida);
 
 	        String rutaHexagons = "src/main/resources/dades/hexagons.csv";
@@ -79,12 +83,15 @@ public class PartidaDao extends GenericDao<Partida, Integer> implements IPartida
 
 	        List<Hexagon> hexagons = carregarHexagonsDesdeCSV(rutaHexagons, novaPartida);
 	        List<Vertex> vertexs = carregarVertexsDesdeCSV(rutaVertexs); 
+	        Map<Integer, Hexagon> hexagonsPerCodi = new HashMap<>();
+	        Map<Integer, Vertex> vertexsPerCodi = new HashMap<>();
 	        
 	        generarMapaAleatori(hexagons);
 
 	        Hexagon hexagonDesert = null;
 	        for (Hexagon h : hexagons) {
 	            session.persist(h);
+	            hexagonsPerCodi.put(h.getCodi(), h);
 	            if (TipusTerreny.DESERT.equals(h.getTerreny())) {
 	                hexagonDesert = h;
 	            }
@@ -98,17 +105,18 @@ public class PartidaDao extends GenericDao<Partida, Integer> implements IPartida
 	        for (Vertex v : vertexs) {
 	            v.setPartida(novaPartida);
 	            session.persist(v);
+	            vertexsPerCodi.put(v.getCodi(), v);
 	        }
 
 	        session.flush();
 
-	        List<Aresta> arestes = carregarArestesDesdeCSV(rutaArestes, session);
+	        List<Aresta> arestes = carregarArestesDesdeCSV(rutaArestes, vertexsPerCodi);
 	        for (Aresta a : arestes) {
 	            a.setPartida(novaPartida);
 	            session.persist(a);
 	        }
 
-	        carregarHexagonVertexDesdeCSV(rutaHexagonVertex, session);
+	        carregarHexagonVertexDesdeCSV(rutaHexagonVertex, session, hexagonsPerCodi, vertexsPerCodi);
 
 	        if (hexagonDesert != null) {
 	            session.createMutationQuery(
@@ -210,26 +218,37 @@ public class PartidaDao extends GenericDao<Partida, Integer> implements IPartida
 		return llista;
 	}
 
-	private List<Aresta> carregarArestesDesdeCSV(String ruta, Session session) throws Exception {
+	private List<Aresta> carregarArestesDesdeCSV(String ruta, Map<Integer, Vertex> vertexsPerCodi) throws Exception {
 		List<Aresta> llista = new ArrayList<>();
 		for (String[] c : llegirCSV(ruta)) {
 			Aresta a = new Aresta();
 			a.setCodi(Integer.parseInt(c[0].trim()));
-			a.setVertexA(session.getReference(Vertex.class, Integer.parseInt(c[1].trim())));
-			a.setVertexB(session.getReference(Vertex.class, Integer.parseInt(c[2].trim())));
+			a.setVertexA(cercarPerCodi(vertexsPerCodi, c[1], ruta));
+			a.setVertexB(cercarPerCodi(vertexsPerCodi, c[2], ruta));
 			llista.add(a);
 		}
 		return llista;
 	}
 
-	private void carregarHexagonVertexDesdeCSV(String r, Session session) throws Exception {
+	private void carregarHexagonVertexDesdeCSV(String r, Session session,
+			Map<Integer, Hexagon> hexagonsPerCodi, Map<Integer, Vertex> vertexsPerCodi) throws Exception {
 		for (String[] c : llegirCSV(r)) {
 			HexagonVertex hv = new HexagonVertex();
-			hv.setHexagon(session.getReference(Hexagon.class, Integer.parseInt(c[0].trim())));
-			hv.setVertex(session.getReference(Vertex.class, Integer.parseInt(c[1].trim())));
+			hv.setHexagon(cercarPerCodi(hexagonsPerCodi, c[0], r));
+			hv.setVertex(cercarPerCodi(vertexsPerCodi, c[1], r));
 			hv.setPosicio(Integer.parseInt(c[2].trim()));
 			session.persist(hv);
 		}
+	}
+
+	// Els CSV contenen codis del tauler, no IDs autogenerats de la base de dades.
+	private <T> T cercarPerCodi(Map<Integer, T> elements, String valor, String ruta) {
+		int codi = Integer.parseInt(valor.trim());
+		T element = elements.get(codi);
+		if (element == null) {
+			throw new IllegalArgumentException("Codi " + codi + " inexistent al tauler: " + ruta);
+		}
+		return element;
 	}
 
 	@Override
@@ -458,7 +477,7 @@ public class PartidaDao extends GenericDao<Partida, Integer> implements IPartida
 				}
 			}
 
-			session.merge(partida);
+			session.persist(partida);
 			tx.commit();
 		} catch (Exception e) {
 			if (tx != null && tx.isActive()) tx.rollback();
@@ -523,7 +542,7 @@ public class PartidaDao extends GenericDao<Partida, Integer> implements IPartida
 				partida.setEstat(EstatPartida.FINALITZADA);
 				partida.setGuanyador(guanyador); 
 				
-				session.merge(partida);
+				session.persist(partida);
 			}
 
 			tx.commit();
